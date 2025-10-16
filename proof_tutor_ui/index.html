@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proof Tutor Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>証明ヒントAI (Proof Tutor)</h1>
+        <p>あなたの「途中までの考え」を入力してください。次の一歩のヒントだけを返します。</p>
+
+        <form id="hint-form">
+            <div class="input-group">
+                <label for="theorem_context">【定理・文脈】(例: 相似の証明、余弦定理の導出)</label>
+                <input type="text" id="theorem_context" value="三角形の合同条件（二辺とその間の角）" required>
+            </div>
+
+            <div class="input-group">
+                <label for="given">【与条件】(例: AB=DE, BC=EF, ∠B=∠E)</label>
+                <textarea id="given" rows="2" required>△ABCと△DEFにおいて、AB=DE, BC=EF</textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="to_prove">【結論】(例: △ABC ≡ △DEF)</label>
+                <input type="text" id="to_prove" value="△ABC ≡ △DEF" required>
+            </div>
+
+            <div class="input-group">
+                <label for="student_attempt">【生徒の途中記述】(箇条書き可)</label>
+                <textarea id="student_attempt" rows="5" required>
+1. 仮定より、AB = DE
+2. 仮定より、BC = EF
+3. したがって、二辺が等しいので合同である。
+                </textarea>
+            </div>
+
+            <button type="submit" id="submit-button">次の一歩のヒントを見る</button>
+            <p id="loading-message" class="hidden">AIが考えています...</p>
+        </form>
+
+        <div id="hint-output" class="hidden">
+            <h2>AIからのヒント</h2>
+            <div class="card">
+                <h3>次の一歩 (Next Hint)</h3>
+                <p id="next-hint-text"></p>
+            </div>
+            <div class="card why-card">
+                <h3>なぜその一歩か (Why)</h3>
+                <p id="why-text"></p>
+            </div>
+            <div class="diagnosis-log hidden">
+                <h3>診断ログ (Diagnosis for Teacher)</h3>
+                <p id="diagnosis-text"></p>
+            </div>
+        </div>
+
+        <div id="error-message" class="hidden error">
+            <p>エラーが発生しました。</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
