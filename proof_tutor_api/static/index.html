@@ -43,7 +43,7 @@
         <div id="phase-problem" class="phase hidden">
             <div class="guide">
                 <h2>ステップ2: 問題に解答する</h2>
-                <p>AIが生成した証明問題が表示されています。「生徒の途中記述」に、あなたが現在までに書いた証明を入力してください。</p>
+                <p>AIが生成した証明問題が表示されています。「問題文の条件」から正しい条件にチェックを入れ、「生徒の途中記述」に現在までに書いた証明を入力してください。</p>
             </div>
 
             <div class="problem-display">
@@ -52,8 +52,15 @@
                     <p id="problem-theorem"></p>
                 </div>
                 <div class="problem-card">
-                    <h3>【与条件】</h3>
-                    <p id="problem-given"></p>
+                    <h3>【図の説明】</h3>
+                    <p id="problem-figure" class="figure-description"></p>
+                </div>
+                <div class="problem-card">
+                    <h3>【問題文の条件】</h3>
+                    <p class="instruction-text">下の選択肢から、正しい条件にチェック✓を入れてください。（複数選択可）</p>
+                    <div id="problem-conditions" class="conditions-list"></div>
+                    <button type="button" id="grade-conditions-button" class="btn-secondary">条件選択を終了</button>
+                    <div id="grading-result" class="hidden grading-result"></div>
                 </div>
                 <div class="problem-card">
                     <h3>【結論】</h3>
@@ -61,7 +68,7 @@
                 </div>
             </div>
 
-            <form id="hint-form">
+            <form id="hint-form" class="hidden">
                 <div class="input-group">
                     <label for="student_attempt"><strong>【生徒の途中記述】</strong> <span>(現在までに書いた証明をすべて入力)</span></label>
                     <textarea id="student_attempt" rows="8" placeholder="例：&#10;1. 仮定より、AB = DE&#10;2. 仮定より、BC = EF&#10;3. ここから先をどう進めるか考えてください..." required></textarea>
@@ -72,6 +79,7 @@
             </form>
 
             <button id="back-button" class="btn-secondary">別の問題を出題する</button>
+            <button id="try-another-attempt-button" class="btn-secondary hidden">別の途中記述を試す</button>
         </div>
 
         <!-- ステップ3: ヒント表示フェーズ -->
@@ -89,7 +97,7 @@
                 <h3>診断ログ (Diagnosis for Teacher)</h3>
                 <p id="diagnosis-text"></p>
             </div>
-            <button id="continue-button" class="btn-secondary">別の途中記述を試す</button>
+            <button id="continue-button" class="btn-secondary hidden">別の途中記述を試す</button>
         </div>
 
         <div id="error-message" class="hidden error">
