@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 問題表示フェーズの要素
     const problemTheorem = document.getElementById('problem-theorem');
     const problemFigure = document.getElementById('problem-figure');
-    const problemGiven = document.getElementById('problem-given');
+    const problemConditions = document.getElementById('problem-conditions');
     const problemToProve = document.getElementById('problem-to-prove');
     const studentAttempt = document.getElementById('student_attempt');
     const hintForm = document.getElementById('hint-form');
@@ -80,22 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 問題を表示
                 problemTheorem.textContent = problemData.theorem_context || '';
                 problemFigure.textContent = problemData.figure_description || '（図の説明がありません）';
-                
-                // givenがArrayの場合は結合、文字列の場合はそのまま使用
-                let givenText = '';
-                if (Array.isArray(problemData.given)) {
-                    givenText = problemData.given.join('\n');
-                } else {
-                    givenText = problemData.given || '';
-                }
-                problemGiven.textContent = givenText;
-                
                 problemToProve.textContent = problemData.to_prove || '';
 
+                // 条件の選択肢を表示
+                problemConditions.innerHTML = '';
+                if (problemData.condition_choices && Array.isArray(problemData.condition_choices)) {
+                    problemData.condition_choices.forEach((choice, index) => {
+                        const label = document.createElement('label');
+                        label.className = 'condition-checkbox';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.value = choice.text;
+                        input.dataset.isCorrect = choice.is_correct;
+                        input.className = 'condition-input';
+                        
+                        const span = document.createElement('span');
+                        span.textContent = choice.text;
+                        
+                        label.appendChild(input);
+                        label.appendChild(span);
+                        problemConditions.appendChild(label);
+                    });
+                }
+
                 // フェーズを切り替え
-                 phaseGenerate.classList.remove('active');
+                phaseGenerate.classList.remove('active');
                 phaseProblem.classList.add('active');
-                hintOutput.classList.remove('active');
+                hintOutput.classList.add('hidden');
                 studentAttempt.value = '';
                 errorMessage.classList.add('hidden');
 
@@ -124,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 状態のリセット
-            hintOutput.classList.remove('active');
+            hintOutput.classList.add('hidden');
             errorMessage.classList.add('hidden');
             hintLoading.classList.remove('hidden');
             submitButton.disabled = true;
@@ -136,11 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 givenForAPI = givenForAPI.join('\n');
             }
             
+            // チェックされた条件を取得
+            const selectedConditions = Array.from(document.querySelectorAll('.condition-input:checked'))
+                .map(input => input.value);
+            
             const data = {
                 theorem_context: currentProblem.theorem_context,
                 given: givenForAPI,
                 to_prove: currentProblem.to_prove,
                 student_attempt: studentAttempt.value,
+                selected_conditions: selectedConditions
             };
 
             try {
@@ -167,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // do_not_revealがtrueであることを確認（必須要件）
                 if (result.do_not_reveal === true) {
-                    hintOutput.classList.add('active');
+                    hintOutput.classList.remove('hidden');
                 } else {
                     // 万が一、do_not_revealがfalseだった場合の安全策
                     errorMessage.textContent = 'エラー: AIが完全解答を返そうとしました。システムがこれをブロックしました。';
@@ -190,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         backButton.addEventListener('click', () => {
             phaseGenerate.classList.add('active');
             phaseProblem.classList.remove('active');
-            hintOutput.classList.remove('active');
+            hintOutput.classList.add('hidden');
             currentProblem = null;
             errorMessage.classList.add('hidden');
         });
@@ -199,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 別の途中記述を試すボタンのハンドラ
     if (continueButton) {
         continueButton.addEventListener('click', () => {
-            hintOutput.classList.remove('active');
+            hintOutput.classList.add('hidden');
             studentAttempt.focus();
         });
     }

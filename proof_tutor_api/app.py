@@ -1,195 +1,253 @@
-import os
 import json
+import random
 from flask import Flask, request, jsonify, send_from_directory
 from openai import OpenAI
 
+def generate_wrong_conditions(correct_conditions, theorem_context):
+    """
+    正しい条件から、間違いの条件を生成する関数。
+    """
+    try:
+        prompt = f"""
+あなたは数学の証明問題の教育支援AIです。
+
+【定理・文脈】
+{theorem_context}
+
+【正しい条件】
+{chr(10).join(correct_conditions)}
+
+上記の正しい条件に対して、教育的に有用な「間違いの条件」を3つ生成してください。
+間違いの条件は、生徒が陥りやすい誤解や誤りを反映したものにしてください。
+
+以下のJSON形式で出力してください：
+{{
+  "wrong_conditions": ["間違いの条件1", "間違いの条件2", "間違いの条件3"]
+}}
+"""
+        
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "あなたは数学の証明問題の教育支援AIです。"},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=256,
+            temperature=0.7
+        )
+        
+        llm_output_text = response.choices[0].message.content
+        result = json.loads(llm_output_text)
+        return result.get("wrong_conditions", [])
+    except Exception as e:
+        print(f"Error generating wrong conditions: {e}")
+        # エラーが発生した場合は、デフォルトの間違いの条件を返す
+        return [
+            "条件が不足している",
+            "与えられた情報が矛盾している",
+            "別の条件が必要である"
+        ]
+
 app = Flask(__name__, static_folder='static')
-client = OpenAI() # 環境変数からAPIキーを自動で読み込みます
+client = OpenAI()
 
 # LLMのモデル名
-MODEL_NAME = "gpt-4.1-mini" # 適切なモデルを選択してください
+MODEL_NAME = "gpt-4.1-mini"
+
+# 問題データベースを読み込み
+try:
+    with open('problems_database.json', 'r', encoding='utf-8') as f:
+        PROBLEMS_DB = json.load(f)
+except FileNotFoundError:
+    PROBLEMS_DB = {"problems": []}
 
 @app.route('/api/generate-problem', methods=['POST'])
 def generate_problem():
     """
-    AIが証明問題を自動生成するAPIエンドポイント。
+    問題データベースから証明問題を選択して返すAPIエンドポイント。
     """
     try:
         data = request.get_json() or {}
         
-        # オプションパラメータ：証明種別（congruence, similarity）
+        # パラメータ：証明種別（congruence, similarity）
         proof_type = data.get("proof_type", "congruence")
-        # オプションパラメータ：難易度（easy, medium, hard）
+        # パラメータ：難易度（easy, medium, hard）
         difficulty = data.get("difficulty", "medium")
         
-        # 証明種別に応じたプロンプト
-        proof_type_guidance = {
-            "congruence": "三角形の合同条件を使った証明問題",
-            "similarity": "三角形の相似条件を使った証明問題"
-        }
+        # 問題データベースから条件に合う問題をフィルタ
+        matching_problems = [
+            p for p in PROBLEMS_DB['problems']
+            if p['type'] == proof_type and p['difficulty'] == difficulty
+        ]
         
-        # 難易度に応じたプロンプト
-        difficulty_guidance = {
-            "easy": "中学1年生レベルの簡単な",
-            "medium": "中学2-3年生レベルの標準的な",
-            "hard": "高校1年生レベルの難しい"
-        }
+        # 条件に合う問題がない場合は、証明種別のみで絞る
+        if not matching_problems:
+            matching_problems = [
+                p for p in PROBLEMS_DB['problems']
+                if p['type'] == proof_type
+            ]
         
-        proof_guidance = proof_type_guidance.get(proof_type, proof_type_guidance["congruence"])
-        difficulty_text = difficulty_guidance.get(difficulty, difficulty_guidance["medium"])
-        guidance = difficulty_text + proof_guidance
+        # 最終的に条件に合う問題がない場合は、全問題からランダムに選択
+        if not matching_problems:
+            matching_problems = PROBLEMS_DB['problems']
         
-        # プロンプトの生成
-        prompt_template = """
-あなたは中高数学の問題出題AIです。{guidance}を生成してください。
-
-以下のJSON形式で出力してください：
-{{
-  "theorem_context": "証明の分野・定理名（例：三角形の合同条件）",
-  "given": "与条件を箇条書きで（例：AB=DE, BC=EF, ∠B=∠E）",
-  "to_prove": "証明すべき結論（例：△ABC ≡ △DEF）"
-}}
-
-注意：
-- 数学的に正確な問題を生成してください
-- 与条件と結論が矛盾しないようにしてください
-- 日本語で記述してください
-"""
-        
-        prompt = prompt_template.format(guidance=guidance)
-        
-        # LLMへの問い合わせ
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": "あなたは中高数学の問題出題AIです。数学的に正確な証明問題を生成し、必ず指定されたJSON形式で出力してください。"},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"},
-            max_tokens=512,
-            temperature=0.7  # 創意性を高めるため、温度を上げる
-        )
-        
-        # LLMの応答からJSONを抽出
-        llm_output_text = response.choices[0].message.content
-        
-        # JSON文字列をパース
-        try:
-            problem_data = json.loads(llm_output_text)
-        except json.JSONDecodeError:
-            print(f"LLM returned invalid JSON: {llm_output_text}")
-            return jsonify({"error": "LLM returned an unparsable response."}), 500
-        
-        # 必須フィールドの確認
-        required_fields = ["theorem_context", "given", "to_prove"]
-        if not all(field in problem_data for field in required_fields):
-            return jsonify({"error": "Generated problem is missing required fields"}), 500
-        
-        return jsonify(problem_data), 200
-    
+        # ランダムに問題を選択
+        if matching_problems:
+            selected_problem = random.choice(matching_problems)
+            
+            # 与条件がリスト形式の場合は文字列に変換
+            given = selected_problem.get('given', [])
+            if isinstance(given, list):
+                given_text = '\n'.join(given)
+            else:
+                given_text = given
+            
+            # 選択肢を生成（正しい条件と間違いの条件を混ぜる）
+            correct_conditions = given if isinstance(given, list) else [given]
+            
+            # 間違いの条件を生成（AIで生成）
+            wrong_conditions = generate_wrong_conditions(correct_conditions, selected_problem.get('theorem_context', ''))
+            
+            # 正しい条件と間違いの条件を混ぜて、ランダムに並べ替え
+            all_conditions = correct_conditions + wrong_conditions
+            random.shuffle(all_conditions)
+            
+            # 各条件に対して、正しいかどうかのフラグを付ける
+            condition_choices = [
+                {"text": cond, "is_correct": cond in correct_conditions}
+                for cond in all_conditions
+            ]
+            
+            return jsonify({
+                "theorem_context": selected_problem.get('theorem_context', ''),
+                "figure_description": selected_problem.get('figure_description', ''),
+                "given": given,  # リスト形式で返す
+                "to_prove": selected_problem.get('to_prove', ''),
+                "condition": selected_problem.get('condition', ''),
+                "condition_choices": condition_choices  # 選択肢を追加
+            })
+        else:
+            return jsonify({
+                "error": "問題が見つかりません"
+            }), 400
+            
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"Generate problem error: {e}")
+        return jsonify({
+            "error": f"エラーが発生しました: {str(e)}"
+        }), 500
 
 @app.route('/api/hint', methods=['POST'])
 def get_hint():
     """
-    生徒の途中記述に基づいて、次の一歩のヒントをLLMから取得するAPIエンドポイント。
+    生徒の途中記述に対して、次の一歩のヒントを返すAPIエンドポイント。
+    完全解答は返さない（安全機構）。
     """
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         
-        # 必須パラメータのチェック
-        required_fields = ["theorem_context", "given", "to_prove", "student_attempt"]
-        if not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
-
         theorem_context = data.get("theorem_context", "")
-        given = data.get("given", "")
+        given = data.get("given", [])
         to_prove = data.get("to_prove", "")
         student_attempt = data.get("student_attempt", "")
-
+        
+        # 与条件の処理
+        if isinstance(given, list):
+            given_text = '\n'.join(given)
+        else:
+            given_text = given
+        
         # プロンプトの生成
-        prompt_template = """
-あなたは中高数学の「証明ヒントAI」です。絶対に完成解答は出さず、
-次の一歩だけを短く提示します。日本語。
+        prompt = f"""
+あなたは数学の証明問題の教育支援AIです。
 
-【定理・文脈】:
-{theorem_context}
+【問題】
+定理・文脈：{theorem_context}
 
-【与条件】:
-{given}
+【与条件】
+{given_text}
 
-【結論】:
+【証明すべき結論】
 {to_prove}
 
-【生徒の途中】:
+【生徒の現在までの記述】
 {student_attempt}
 
-出力は必ず次のJSON:
+生徒の記述を分析して、以下の3つを日本語で提供してください：
+
+1. 【次の一歩】：生徒が次にすべき一つのステップのみを提示してください。完全な解答は絶対に返さないでください。
+2. 【なぜその一歩か】：そのステップが必要な理由を簡潔に説明してください。
+3. 【診断】：生徒の記述から見える理解度や課題を簡潔に診断してください。
+
+以下のJSON形式で出力してください：
 {{
- "diagnosis": "誤り/不足の指摘を60字以内",
- "next_hint": "次の一歩だけを80字以内で",
- "why": "なぜその一歩かを80字以内で",
- "do_not_reveal": true
+  "next_hint": "次の一歩のみ（1-2文）",
+  "why": "その理由（1-2文）",
+  "diagnosis": "診断結果（1-2文）",
+  "do_not_reveal": true
 }}
-禁止事項: 完成解答、三歩以上の手順、別問題への脱線。
+
+重要：必ず do_not_reveal を true に設定してください。これは完全解答を返していないことの確認です。
 """
         
-        prompt = prompt_template.format(
-            theorem_context=theorem_context,
-            given=given,
-            to_prove=to_prove,
-            student_attempt=student_attempt
-        )
-
         # LLMへの問い合わせ
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "system", "content": "あなたは中高数学の「証明ヒントAI」です。絶対に完成解答は出さず、次の一歩だけを短く提示します。出力は必ず指定されたJSON形式に従ってください。"},
+                {"role": "system", "content": "あなたは数学の証明問題の教育支援AIです。生徒の学習を支援するため、次の一歩のヒントのみを提供し、完全な解答は絶対に返しません。"},
                 {"role": "user", "content": prompt}
             ],
-            # JSON形式での出力を強制
             response_format={"type": "json_object"},
-            # ヒントの最小性を担保するため、max_tokensを制限
-            max_tokens=256, 
-            temperature=0.1 # 安定した出力を得るために低めに設定
+            max_tokens=512,
+            temperature=0.7
         )
-
+        
         # LLMの応答からJSONを抽出
         llm_output_text = response.choices[0].message.content
         
-        # JSON文字列をパース
         try:
-            hint_data = json.loads(llm_output_text)
+            result = json.loads(llm_output_text)
         except json.JSONDecodeError:
-            # LLMが不正なJSONを返した場合のフォールバック
             print(f"LLM returned invalid JSON: {llm_output_text}")
-            return jsonify({"error": "LLM returned an unparsable response."}), 500
-
-        # do_not_revealがtrueであることを確認（ガードレール）
-        if hint_data.get("do_not_reveal") is not True:
-             # プロンプトインジェクション対策として、意図しない完全解答を防ぐ
-            print("Warning: do_not_reveal was not true. Overriding.")
-            hint_data["do_not_reveal"] = True
-            hint_data["next_hint"] = "（セキュリティガードによりヒントは表示されません。AIの応答を確認してください。）"
-            
-        return jsonify(hint_data), 200
-
+            return jsonify({
+                "error": "AIの応答をパースできませんでした"
+            }), 500
+        
+        # do_not_revealの確認（安全機構）
+        if result.get("do_not_reveal") != True:
+            print("Warning: do_not_reveal is not true")
+            return jsonify({
+                "error": "安全機構によってブロックされました"
+            }), 400
+        
+        return jsonify({
+            "next_hint": result.get("next_hint", ""),
+            "why": result.get("why", ""),
+            "diagnosis": result.get("diagnosis", ""),
+            "do_not_reveal": result.get("do_not_reveal", False)
+        })
+        
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"Hint error: {e}")
+        return jsonify({
+            "error": f"エラーが発生しました: {str(e)}"
+        }), 500
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def serve_index():
-    return send_from_directory(app.static_folder, 'index.html')
+    """
+    静的ファイル（index.html）を提供する。
+    """
+    return send_from_directory('static', 'index.html')
 
-@app.route('/<path:path>')
+@app.route('/<path:path>', methods=['GET'])
 def serve_static(path):
-    return send_from_directory(app.static_folder, path)
+    """
+    静的ファイル（CSS、JavaScript等）を提供する。
+    """
+    return send_from_directory('static', path)
 
 if __name__ == '__main__':
-    # 開発環境での実行
     app.run(debug=True, host='0.0.0.0', port=5000)
 

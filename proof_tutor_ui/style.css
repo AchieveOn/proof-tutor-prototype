@@ -51,19 +51,19 @@ h1 {
     display: block;
 }
 
-/* 難易度セレクタ */
-.difficulty-selector {
+/* フォームグループ */
+.form-group {
     margin-bottom: 20px;
 }
 
-.difficulty-selector label {
+.form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
     color: #555;
 }
 
-.difficulty-selector select {
+.form-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -232,11 +232,61 @@ textarea {
     background-color: #fff3cd;
     border: 1px solid #ffeeba;
     color: #856404;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
 }
 
 .diagnosis-log h3 {
+    margin-top: 0;
     color: #856404;
-    border-bottom-color: #856404;
+    border-bottom: 2px solid #856404;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* 条件選択肢 */
+.conditions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.condition-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 1em;
+}
+
+.condition-checkbox:hover {
+    background-color: #f0f0f0;
+    border-color: #007bff;
+}
+
+.condition-checkbox input[type="checkbox"] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.condition-checkbox span {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.instruction-text {
+    color: #666;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+    font-style: italic;
 }
 
 /* エラーメッセージ */
