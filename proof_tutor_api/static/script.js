@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 problemToProve.textContent = problemData.to_prove || '';
 
                 // フェーズを切り替え
-                phaseGenerate.classList.add('hidden');
-                phaseProblem.classList.remove('hidden');
-                hintOutput.classList.add('hidden');
+                 phaseGenerate.classList.remove('active');
+                phaseProblem.classList.add('active');
+                hintOutput.classList.remove('active');
                 studentAttempt.value = '';
                 errorMessage.classList.add('hidden');
 
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 状態のリセット
-            hintOutput.classList.add('hidden');
+            hintOutput.classList.remove('active');
             errorMessage.classList.add('hidden');
             hintLoading.classList.remove('hidden');
             submitButton.disabled = true;
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // do_not_revealがtrueであることを確認（必須要件）
                 if (result.do_not_reveal === true) {
-                    hintOutput.classList.remove('hidden');
+                    hintOutput.classList.add('active');
                 } else {
                     // 万が一、do_not_revealがfalseだった場合の安全策
                     errorMessage.textContent = 'エラー: AIが完全解答を返そうとしました。システムがこれをブロックしました。';
@@ -186,9 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 別の問題を出題するボタンのハンドラ
     if (backButton) {
         backButton.addEventListener('click', () => {
-            phaseGenerate.classList.remove('hidden');
-            phaseProblem.classList.add('hidden');
-            hintOutput.classList.add('hidden');
+            phaseGenerate.classList.add('active');
+            phaseProblem.classList.remove('active');
+            hintOutput.classList.remove('active');
             currentProblem = null;
             errorMessage.classList.add('hidden');
         });
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 別の途中記述を試すボタンのハンドラ
     if (continueButton) {
         continueButton.addEventListener('click', () => {
-            hintOutput.classList.add('hidden');
+            hintOutput.classList.remove('active');
             studentAttempt.focus();
         });
     }
