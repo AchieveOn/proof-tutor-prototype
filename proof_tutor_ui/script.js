@@ -1,5 +1,6 @@
 const GENERATE_API_URL = '/api/generate-problem';
 const HINT_API_URL = '/api/hint';
+const GRADE_CONDITIONS_API_URL = '/api/grade-conditions';
 
 // グローバル変数：現在の問題データを保持
 let currentProblem = null;
@@ -29,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submit-button');
     const hintLoading = document.getElementById('hint-loading');
     const backButton = document.getElementById('back-button');
+    const gradeConditionsButton = document.getElementById('grade-conditions-button');
+    const gradingResult = document.getElementById('grading-result');
+    const tryAnotherAttemptButton = document.getElementById('try-another-attempt-button');
 
     // ヒント表示フェーズの要素
     const nextHintText = document.getElementById('next-hint-text');
@@ -110,6 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 hintOutput.classList.add('hidden');
                 studentAttempt.value = '';
                 errorMessage.classList.add('hidden');
+                gradingResult.classList.add('hidden');
+                hintForm.classList.add('hidden');
+                tryAnotherAttemptButton.classList.add('hidden');
 
             } catch (error) {
                 console.error('Generate error:', error);
@@ -122,6 +129,89 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error('generateButton not found');
+    }
+
+    // 条件採点ボタンのハンドラ
+    if (gradeConditionsButton) {
+        gradeConditionsButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (!currentProblem) {
+                errorMessage.textContent = 'エラー: 問題データが見つかりません。';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // チェックされた条件を取得
+            const selectedConditions = Array.from(document.querySelectorAll('.condition-input:checked'))
+                .map(input => input.value);
+            
+            const data = {
+                selected_conditions: selectedConditions,
+                condition_choices: currentProblem.condition_choices
+            };
+            
+            try {
+                const response = await fetch(GRADE_CONDITIONS_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({}));
+                    const errorMsg = errorBody.error || `サーバーエラー (ステータス: ${response.status})`;
+                    throw new Error(errorMsg);
+                }
+                
+                const result = await response.json();
+                
+                // 採点結果を表示
+                gradingResult.innerHTML = '';
+                const resultCard = document.createElement('div');
+                resultCard.className = result.is_correct ? 'grading-correct' : 'grading-incorrect';
+                
+                const scoreText = document.createElement('p');
+                scoreText.className = 'grading-score';
+                scoreText.textContent = `スコア: ${result.score}点`;
+                
+                const feedbackText = document.createElement('p');
+                feedbackText.className = 'grading-feedback';
+                feedbackText.textContent = result.feedback;
+                
+                resultCard.appendChild(scoreText);
+                resultCard.appendChild(feedbackText);
+                gradingResult.appendChild(resultCard);
+                gradingResult.classList.remove('hidden');
+                
+                // 正解の場合は途中記述フェーズに進む
+                if (result.is_correct) {
+                    setTimeout(() => {
+                        hintForm.classList.remove('hidden');
+                        tryAnotherAttemptButton.classList.add('hidden');
+                        studentAttempt.focus();
+                    }, 1500);
+                } else {
+                    // 不正解の場合は再度選択できるようにする
+                    tryAnotherAttemptButton.classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                console.error('Grade conditions error:', error);
+                errorMessage.textContent = `採点エラーが発生しました: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // 別の途中記述を試すボタン（採点失敗時）
+    if (tryAnotherAttemptButton) {
+        tryAnotherAttemptButton.addEventListener('click', () => {
+            gradingResult.classList.add('hidden');
+            tryAnotherAttemptButton.classList.add('hidden');
+        });
     }
 
     // ヒント取得フォームのサブミットハンドラ
@@ -208,6 +298,9 @@ document.addEventListener('DOMContentLoaded', () => {
             phaseGenerate.classList.add('active');
             phaseProblem.classList.remove('active');
             hintOutput.classList.add('hidden');
+            gradingResult.classList.add('hidden');
+            hintForm.classList.add('hidden');
+            tryAnotherAttemptButton.classList.add('hidden');
             currentProblem = null;
             errorMessage.classList.add('hidden');
         });
@@ -217,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (continueButton) {
         continueButton.addEventListener('click', () => {
             hintOutput.classList.add('hidden');
+            hintForm.classList.remove('hidden');
+            studentAttempt.value = '';
             studentAttempt.focus();
         });
     }

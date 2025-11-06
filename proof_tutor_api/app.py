@@ -138,6 +138,58 @@ def generate_problem():
             "error": f"エラーが発生しました: {str(e)}"
         }), 500
 
+@app.route('/api/grade-conditions', methods=['POST'])
+def grade_conditions():
+    """
+    生徒が選択した条件を採点するAPIエンドポイント。
+    """
+    try:
+        data = request.get_json() or {}
+        
+        selected_conditions = data.get("selected_conditions", [])
+        condition_choices = data.get("condition_choices", [])
+        
+        # 正しい条件を特定
+        correct_conditions = [c["text"] for c in condition_choices if c.get("is_correct", False)]
+        
+        # 採点
+        is_correct = set(selected_conditions) == set(correct_conditions)
+        
+        # フィードバック生成
+        if is_correct:
+            feedback = "素晴らしい！すべての条件を正しく選択できました。"
+            score = 100
+        else:
+            # 間違った選択を特定
+            incorrect_selected = [c for c in selected_conditions if c not in correct_conditions]
+            missing_conditions = [c for c in correct_conditions if c not in selected_conditions]
+            
+            feedback_parts = []
+            if incorrect_selected:
+                feedback_parts.append(f"間違った条件が選ばれています：{', '.join(incorrect_selected)}")
+            if missing_conditions:
+                feedback_parts.append(f"選ばれていない正しい条件：{', '.join(missing_conditions)}")
+            
+            feedback = "もう一度確認してください。" + "\n".join(feedback_parts)
+            
+            # スコア計算（正しく選んだ条件の割合）
+            correct_selected = len([c for c in selected_conditions if c in correct_conditions])
+            score = int((correct_selected / len(correct_conditions)) * 100) if correct_conditions else 0
+        
+        return jsonify({
+            "is_correct": is_correct,
+            "score": score,
+            "feedback": feedback,
+            "correct_conditions": correct_conditions,
+            "selected_conditions": selected_conditions
+        })
+        
+    except Exception as e:
+        print(f"Grade conditions error: {e}")
+        return jsonify({
+            "error": f"エラーが発生しました: {str(e)}"
+        }), 500
+
 @app.route('/api/hint', methods=['POST'])
 def get_hint():
     """

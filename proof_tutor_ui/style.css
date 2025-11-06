@@ -289,6 +289,57 @@ textarea {
     font-style: italic;
 }
 
+/* 採点結果表示 */
+.grading-result {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.grading-correct {
+    background-color: #d4edda;
+    border: 2px solid #28a745;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.grading-incorrect {
+    background-color: #f8d7da;
+    border: 2px solid #dc3545;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.grading-score {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.grading-correct .grading-score {
+    color: #155724;
+}
+
+.grading-incorrect .grading-score {
+    color: #721c24;
+}
+
+.grading-feedback {
+    margin: 10px 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.grading-correct .grading-feedback {
+    color: #155724;
+}
+
+.grading-incorrect .grading-feedback {
+    color: #721c24;
+}
+
 /* エラーメッセージ */
 .error {
     background-color: #f8d7da;
@@ -301,6 +352,10 @@ textarea {
 }
 
 /* レスポンシブ */
+#hint-form.hidden {
+    display: none;
+}
+
 @media (max-width: 600px) {
     .container {
         padding: 15px;
