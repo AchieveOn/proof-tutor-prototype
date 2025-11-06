@@ -1,0 +1,288 @@
+{
+  "problems": [
+    {
+      "id": 1,
+      "type": "congruence",
+      "difficulty": "easy",
+      "theorem_context": "三角形の合同条件（SSS条件）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。ABCは左側、DEFは右側。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "AB = DE = 3cm",
+        "BC = EF = 4cm",
+        "CA = FD = 5cm"
+      ],
+      "to_prove": "△ABC ≡ △DEF",
+      "condition": "SSS"
+    },
+    {
+      "id": 2,
+      "type": "congruence",
+      "difficulty": "easy",
+      "theorem_context": "三角形の合同条件（SAS条件）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。点B、点Eで角が標示されている。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "AB = DE = 3cm",
+        "∠B = ∠E = 60°",
+        "BC = EF = 4cm"
+      ],
+      "to_prove": "△ABC ≡ △DEF",
+      "condition": "SAS"
+    },
+    {
+      "id": 3,
+      "type": "congruence",
+      "difficulty": "easy",
+      "theorem_context": "三角形の合同条件（ASA条件）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。点A、点D、点B、点Eで角が標示されている。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "∠A = ∠D = 50°",
+        "AB = DE = 3cm",
+        "∠B = ∠E = 60°"
+      ],
+      "to_prove": "△ABC ≡ △DEF",
+      "condition": "ASA"
+    },
+    {
+      "id": 4,
+      "type": "congruence",
+      "difficulty": "medium",
+      "theorem_context": "二等辺三角形と合同",
+      "figure_description": "二等辺三角形ABCが描かれている。AB = AC。頂点Aから底辺BCに垂線ADが引かれている。DはBC上の点。",
+      "given": [
+        "△ABCは二等辺三角形でAB = AC",
+        "点DはBC上の点",
+        "AD ⊥ BC"
+      ],
+      "to_prove": "△ABD ≡ △ACD",
+      "condition": "SAS"
+    },
+    {
+      "id": 5,
+      "type": "congruence",
+      "difficulty": "medium",
+      "theorem_context": "平行線と合同",
+      "figure_description": "四角形ABCDが描かれている。AB // CD、AC // BD。対角線ACとBDが描かれている。",
+      "given": [
+        "AB // CD",
+        "AC // BD",
+        "AB = CD"
+      ],
+      "to_prove": "△ABC ≡ △CDA",
+      "condition": "SAS"
+    },
+    {
+      "id": 6,
+      "type": "congruence",
+      "difficulty": "medium",
+      "theorem_context": "直角三角形の合同（HL条件）",
+      "figure_description": "直角三角形ABCと直角三角形DEFが並んで描かれている。∠C = ∠F = 90°。",
+      "given": [
+        "△ABCと△DEFは直角三角形",
+        "∠C = ∠F = 90°",
+        "AB = DE = 5cm（斜辺）",
+        "BC = EF = 3cm"
+      ],
+      "to_prove": "△ABC ≡ △DEF",
+      "condition": "HL"
+    },
+    {
+      "id": 7,
+      "type": "congruence",
+      "difficulty": "hard",
+      "theorem_context": "対頂角と合同",
+      "figure_description": "直線ABと直線CDが点Oで交わっている。点AとBはOから等距離、点CとDもOから等距離。",
+      "given": [
+        "直線ABと直線CDが点Oで交わる",
+        "AO = BO = 2cm",
+        "CO = DO = 3cm"
+      ],
+      "to_prove": "△AOC ≡ △BOD",
+      "condition": "SAS"
+    },
+    {
+      "id": 8,
+      "type": "similarity",
+      "difficulty": "easy",
+      "theorem_context": "三角形の相似条件（AA相似）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。対応する角が同じマークで標示されている。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "∠A = ∠D = 50°",
+        "∠B = ∠E = 60°"
+      ],
+      "to_prove": "△ABC ∽ △DEF",
+      "condition": "AA"
+    },
+    {
+      "id": 9,
+      "type": "similarity",
+      "difficulty": "easy",
+      "theorem_context": "三角形の相似条件（SSS相似）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。辺の長さが標示されている。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "AB = 2cm、BC = 3cm、CA = 4cm",
+        "DE = 4cm、EF = 6cm、FD = 8cm"
+      ],
+      "to_prove": "△ABC ∽ △DEF",
+      "condition": "SSS"
+    },
+    {
+      "id": 10,
+      "type": "similarity",
+      "difficulty": "easy",
+      "theorem_context": "三角形の相似条件（SAS相似）",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。点B、点Eで同じマークの角が標示されている。",
+      "given": [
+        "三角形ABCと三角形DEFにおいて",
+        "AB = 2cm、DE = 4cm",
+        "∠B = ∠E = 60°",
+        "BC = 3cm、EF = 6cm"
+      ],
+      "to_prove": "△ABC ∽ △DEF",
+      "condition": "SAS"
+    },
+    {
+      "id": 11,
+      "type": "similarity",
+      "difficulty": "medium",
+      "theorem_context": "平行線と相似",
+      "figure_description": "三角形ABCが描かれている。BC // DEで、DはAB上、EはAC上の点。",
+      "given": [
+        "△ABCにおいて",
+        "BC // DE",
+        "DはAB上の点、EはAC上の点"
+      ],
+      "to_prove": "△ADE ∽ △ABC",
+      "condition": "AA"
+    },
+    {
+      "id": 12,
+      "type": "similarity",
+      "difficulty": "medium",
+      "theorem_context": "中点連結定理",
+      "figure_description": "三角形ABCが描かれている。MはABの中点、NはACの中点。線分MNが描かれている。",
+      "given": [
+        "△ABCにおいて",
+        "MはABの中点",
+        "NはACの中点"
+      ],
+      "to_prove": "MN // BC、MN = BC/2",
+      "condition": "中点連結定理"
+    },
+    {
+      "id": 13,
+      "type": "congruence",
+      "difficulty": "medium",
+      "theorem_context": "正方形と合同",
+      "figure_description": "正方形ABCDが描かれている。点EはAB上、点FはBC上。AE = BFが標示されている。",
+      "given": [
+        "正方形ABCDにおいて",
+        "点EはAB上の点",
+        "点FはBC上の点",
+        "AE = BF = 1cm"
+      ],
+      "to_prove": "△AED ≡ △BFE",
+      "condition": "SAS"
+    },
+    {
+      "id": 14,
+      "type": "similarity",
+      "difficulty": "hard",
+      "theorem_context": "相似と面積比",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。相似比が2:3と標示されている。",
+      "given": [
+        "△ABCと△DEFが相似",
+        "相似比が2:3"
+      ],
+      "to_prove": "面積比は4:9",
+      "condition": "相似比と面積比"
+    },
+    {
+      "id": 15,
+      "type": "congruence",
+      "difficulty": "hard",
+      "theorem_context": "円周角と合同",
+      "figure_description": "円Oが描かれている。弦ABと弦CDが描かれている。中心角∠AOBと∠CODが標示されている。",
+      "given": [
+        "円Oにおいて",
+        "弦AB = 弦CD = 4cm",
+        "∠AOB = ∠COD = 60°"
+      ],
+      "to_prove": "△AOB ≡ △COD",
+      "condition": "SAS"
+    },
+    {
+      "id": 16,
+      "type": "similarity",
+      "difficulty": "medium",
+      "theorem_context": "相似と線分の比",
+      "figure_description": "三角形ABCが描かれている。BC // DEで、DはAB上、EはAC上。AD:DB = 2:1が標示されている。",
+      "given": [
+        "△ABCにおいて",
+        "DE // BC",
+        "AD : DB = 2 : 1"
+      ],
+      "to_prove": "AE : EC = 2 : 1",
+      "condition": "相似"
+    },
+    {
+      "id": 17,
+      "type": "congruence",
+      "difficulty": "easy",
+      "theorem_context": "対称と合同",
+      "figure_description": "直線lが描かれている。点Aと点Bが直線lに関して対称。点Cは直線l上の点。",
+      "given": [
+        "直線lに関して点Aと点Bが対称",
+        "点Cは直線l上の点"
+      ],
+      "to_prove": "CA = CB",
+      "condition": "対称"
+    },
+    {
+      "id": 18,
+      "type": "similarity",
+      "difficulty": "medium",
+      "theorem_context": "影の長さと相似",
+      "figure_description": "太陽光が平行に当たっている。棒と建物が描かれている。影が標示されている。",
+      "given": [
+        "太陽光が平行に当たる",
+        "棒の高さ：影の長さ = 2 : 3",
+        "建物の影の長さが30m"
+      ],
+      "to_prove": "建物の高さを求める",
+      "condition": "相似"
+    },
+    {
+      "id": 19,
+      "type": "congruence",
+      "difficulty": "medium",
+      "theorem_context": "平行四辺形と合同",
+      "figure_description": "平行四辺形ABCDが描かれている。対角線ACと対角線BDが描かれている。",
+      "given": [
+        "平行四辺形ABCDにおいて",
+        "対角線ACと対角線BDが交わる"
+      ],
+      "to_prove": "△ABC ≡ △CDA",
+      "condition": "SAS"
+    },
+    {
+      "id": 20,
+      "type": "similarity",
+      "difficulty": "hard",
+      "theorem_context": "相似な三角形の周の長さ",
+      "figure_description": "三角形ABCと三角形DEFが並んで描かれている。相似比が3:4と標示されている。",
+      "given": [
+        "△ABCと△DEFが相似",
+        "相似比が3:4",
+        "△ABCの周の長さが30cm"
+      ],
+      "to_prove": "△DEFの周の長さを求める",
+      "condition": "相似比"
+    }
+  ]
+}
+
