@@ -14,11 +14,19 @@
         <div id="phase-generate" class="phase active">
             <div class="guide">
                 <h2>ステップ1: 証明問題を出題してもらう</h2>
-                <p>「出題」ボタンをクリックすると、AIが証明問題を自動生成します。難易度を選択してください。</p>
+                <p>証明の種類と難易度を選択して、「出題する」ボタンをクリックしてください。AIが証明問題を自動生成します。</p>
             </div>
 
-            <div class="difficulty-selector">
-                <label for="difficulty">難易度を選択:</label>
+            <div class="form-group">
+                <label for="proof-type"><strong>証明の種類を選択:</strong></label>
+                <select id="proof-type">
+                    <option value="congruence">合同（三角形の合同条件）</option>
+                    <option value="similarity">相似（三角形の相似条件）</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="difficulty"><strong>難易度を選択:</strong></label>
                 <select id="difficulty">
                     <option value="easy">簡単（中学1年生レベル）</option>
                     <option value="medium" selected>標準（中学2-3年生レベル）</option>

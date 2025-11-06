@@ -17,17 +17,27 @@ def generate_problem():
     try:
         data = request.get_json() or {}
         
+        # オプションパラメータ：証明種別（congruence, similarity）
+        proof_type = data.get("proof_type", "congruence")
         # オプションパラメータ：難易度（easy, medium, hard）
         difficulty = data.get("difficulty", "medium")
         
-        # 難易度に応じたプロンプト
-        difficulty_guidance = {
-            "easy": "中学1年生レベルの簡単な証明問題",
-            "medium": "中学2-3年生レベルの標準的な証明問題",
-            "hard": "高校1年生レベルの難しい証明問題"
+        # 証明種別に応じたプロンプト
+        proof_type_guidance = {
+            "congruence": "三角形の合同条件を使った証明問題",
+            "similarity": "三角形の相似条件を使った証明問題"
         }
         
-        guidance = difficulty_guidance.get(difficulty, difficulty_guidance["medium"])
+        # 難易度に応じたプロンプト
+        difficulty_guidance = {
+            "easy": "中学1年生レベルの簡単な",
+            "medium": "中学2-3年生レベルの標準的な",
+            "hard": "高校1年生レベルの難しい"
+        }
+        
+        proof_guidance = proof_type_guidance.get(proof_type, proof_type_guidance["congruence"])
+        difficulty_text = difficulty_guidance.get(difficulty, difficulty_guidance["medium"])
+        guidance = difficulty_text + proof_guidance
         
         # プロンプトの生成
         prompt_template = """
