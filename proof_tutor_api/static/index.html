@@ -3,52 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proof Tutor Prototype</title>
+    <title>Proof Tutor - AI出題版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>証明ヒントAI (Proof Tutor)</h1>
-        <div class="guide">
-            <h2>Proof Tutor の使い方</h2>
-            <ol>
-                <li>**【定理・文脈】**：証明したい問題の分野やテーマを簡潔に入力します。</li>
-                <li>**【与条件】**：問題で与えられている条件をすべて箇条書きで入力します。</li>
-                <li>**【結論】**：最終的に証明したい結論を入力します。</li>
-                <li>**【生徒の途中記述】**：生徒が現在までに書いた証明の記述を、途中であってもすべて入力します。</li>
-            </ol>
-            <p>入力後、「次の一歩のヒントを見る」ボタンを押すと、AIがあなたの記述を分析し、次に書くべき一歩のヒントを返します。**完全な解答は返しません。**</p>
+        
+        <!-- ステップ1: 出題フェーズ -->
+        <div id="phase-generate" class="phase active">
+            <div class="guide">
+                <h2>ステップ1: 証明問題を出題してもらう</h2>
+                <p>証明の種類と難易度を選択して、「出題する」ボタンをクリックしてください。AIが証明問題を自動生成します。</p>
+            </div>
+
+            <div class="form-group">
+                <label for="proof-type"><strong>証明の種類を選択:</strong></label>
+                <select id="proof-type">
+                    <option value="congruence">合同（三角形の合同条件）</option>
+                    <option value="similarity">相似（三角形の相似条件）</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="difficulty"><strong>難易度を選択:</strong></label>
+                <select id="difficulty">
+                    <option value="easy">簡単（中学1年生レベル）</option>
+                    <option value="medium" selected>標準（中学2-3年生レベル）</option>
+                    <option value="hard">難しい（高校1年生レベル）</option>
+                </select>
+            </div>
+
+            <button id="generate-button" class="btn-primary">出題する</button>
+            <p id="generate-loading" class="hidden">AIが問題を生成中...</p>
+            <div id="generate-error" class="hidden error"></div>
         </div>
 
-        <form id="hint-form">
-            <div class="input-group">
-                <label for="theorem_context"><strong>【定理・文脈】</strong> <span>(例: 相似の証明、余弦定理の導出)</span></label>
-                <input type="text" id="theorem_context" value="三角形の合同条件（二辺とその間の角）" required>
+        <!-- ステップ2: 問題表示フェーズ -->
+        <div id="phase-problem" class="phase hidden">
+            <div class="guide">
+                <h2>ステップ2: 問題に解答する</h2>
+                <p>AIが生成した証明問題が表示されています。「問題文の条件」から正しい条件にチェックを入れ、「生徒の途中記述」に現在までに書いた証明を入力してください。</p>
             </div>
 
-            <div class="input-group">
-                <label for="given"><strong>【与条件】</strong> <span>(問題で与えられた条件をすべて入力)</span></label>
-                <textarea id="given" rows="2" required>△ABCと△DEFにおいて、AB=DE, BC=EF</textarea>
+            <div class="problem-display">
+                <div class="problem-card">
+                    <h3>【定理・文脈】</h3>
+                    <p id="problem-theorem"></p>
+                </div>
+                <div class="problem-card">
+                    <h3>【問題文】</h3>
+                    <p id="problem-figure" class="figure-description"></p>
+                </div>
+                <div class="problem-card">
+                    <h3>【結論】</h3>
+                    <p id="problem-to-prove"></p>
+                </div>
+                <div class="problem-card">
+                    <h3>【問題文の条件】</h3>
+                    <p class="instruction-text">下の選択肢から、正しい条件にチェック✓を入れてください。（複数選択可）</p>
+                    <div id="problem-conditions" class="conditions-list"></div>
+                    <button type="button" id="grade-conditions-button" class="btn-secondary">条件選択を終了</button>
+                    <div id="grading-result" class="hidden grading-result"></div>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label for="to_prove"><strong>【結論】</strong> <span>(最終的に証明したい内容)</span></label>
-                <input type="text" id="to_prove" value="△ABC ≡ △DEF" required>
-            </div>
+            <form id="hint-form" class="hidden">
+                <div class="input-group">
+                    <label for="student_attempt"><strong>【生徒の途中記述】</strong> <span>(現在までに書いた証明をすべて入力)</span></label>
+                    <textarea id="student_attempt" rows="8" placeholder="例：&#10;1. 仮定より、AB = DE&#10;2. 仮定より、BC = EF&#10;3. ここから先をどう進めるか考えてください..." required></textarea>
+                </div>
 
-            <div class="input-group">
-                <label for="student_attempt"><strong>【生徒の途中記述】</strong> <span>(現在までに書いた証明をすべて入力)</span></label>
-                <textarea id="student_attempt" rows="5" required>
-1. 仮定より、AB = DE
-2. 仮定より、BC = EF
-3. したがって、二辺が等しいので合同である。
-                </textarea>
-            </div>
+                <button type="submit" id="submit-button" class="btn-primary">次の一歩のヒントを見る</button>
+                <p id="hint-loading" class="hidden">AIが考えています...</p>
+            </form>
 
-            <button type="submit" id="submit-button">次の一歩のヒントを見る</button>
-            <p id="loading-message" class="hidden">AIが考えています...</p>
-        </form>
+            <button id="back-button" class="btn-secondary">別の問題を出題する</button>
+            <button id="try-another-attempt-button" class="btn-secondary hidden">別の途中記述を試す</button>
+        </div>
 
+        <!-- ステップ3: ヒント表示フェーズ -->
         <div id="hint-output" class="hidden">
             <h2>AIからのヒント</h2>
             <div class="card">
@@ -63,6 +97,7 @@
                 <h3>診断ログ (Diagnosis for Teacher)</h3>
                 <p id="diagnosis-text"></p>
             </div>
+            <button id="continue-button" class="btn-secondary hidden">別の途中記述を試す</button>
         </div>
 
         <div id="error-message" class="hidden error">
@@ -73,3 +108,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+

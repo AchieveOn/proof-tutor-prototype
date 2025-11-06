@@ -42,6 +42,109 @@ h1 {
     font-size: 1.2em;
 }
 
+/* フェーズ管理 */
+.phase {
+    display: none;
+}
+
+.phase.active {
+    display: block;
+}
+
+/* フォームグループ */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+/* ボタン */
+.btn-primary,
+.btn-secondary {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s, opacity 0.3s;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.btn-primary:disabled {
+    background-color: #90ee90;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* 問題表示 */
+.problem-display {
+    margin-bottom: 20px;
+}
+
+.problem-card {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+}
+
+.problem-card h3 {
+    margin-top: 0;
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+.problem-card p {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.figure-description {
+    background-color: #f0f8ff;
+    padding: 10px;
+    border-left: 4px solid #ff9800;
+    font-style: italic;
+    color: #555;
+}
+
+/* 入力フォーム */
 .input-group {
     margin-bottom: 20px;
 }
@@ -73,39 +176,25 @@ textarea:focus {
 
 textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 150px;
+    font-size: 1.2em;
+    line-height: 1.8;
 }
 
-button {
-    background-color: #28a745;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s, opacity 0.3s;
-    width: 100%;
+/* ローディング */
+.hidden {
+    display: none;
 }
 
-button:hover:not(:disabled) {
-    background-color: #218838;
-}
-
-button:disabled {
-    background-color: #90ee90;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-#loading-message {
+#generate-loading,
+#hint-loading {
     text-align: center;
     margin-top: 15px;
     color: #007bff;
     font-weight: 500;
 }
 
+/* ヒント出力 */
 #hint-output {
     margin-top: 30px;
     padding-top: 20px;
@@ -145,14 +234,116 @@ button:disabled {
     background-color: #fff3cd;
     border: 1px solid #ffeeba;
     color: #856404;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
 }
 
 .diagnosis-log h3 {
+    margin-top: 0;
     color: #856404;
-    border-bottom-color: #856404;
+    border-bottom: 2px solid #856404;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 
-#error-message {
+/* 条件選択肢 */
+.conditions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.condition-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 1em;
+}
+
+.condition-checkbox:hover {
+    background-color: #f0f0f0;
+    border-color: #007bff;
+}
+
+.condition-checkbox input[type="checkbox"] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.condition-checkbox span {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.instruction-text {
+    color: #666;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+/* 採点結果表示 */
+.grading-result {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.grading-correct {
+    background-color: #d4edda;
+    border: 2px solid #28a745;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.grading-incorrect {
+    background-color: #f8d7da;
+    border: 2px solid #dc3545;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.grading-score {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.grading-correct .grading-score {
+    color: #155724;
+}
+
+.grading-incorrect .grading-score {
+    color: #721c24;
+}
+
+.grading-feedback {
+    margin: 10px 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.grading-correct .grading-feedback {
+    color: #155724;
+}
+
+.grading-incorrect .grading-feedback {
+    color: #721c24;
+}
+
+/* エラーメッセージ */
+.error {
     background-color: #f8d7da;
     color: #721c24;
     padding: 15px;
@@ -162,18 +353,24 @@ button:disabled {
     text-align: center;
 }
 
-.hidden {
+/* レスポンシブ */
+#hint-form.hidden {
     display: none;
 }
 
-/* フォームのラベルをより分かりやすく */
-.input-group label strong {
-    color: #333;
-    font-size: 1.1em;
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        font-size: 1em;
+        padding: 10px 15px;
+    }
 }
 
-.input-group label span {
-    font-weight: normal;
-    color: #6c757d;
-    font-size: 0.9em;
-}
