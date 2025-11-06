@@ -9,6 +9,78 @@ client = OpenAI() # 環境変数からAPIキーを自動で読み込みます
 # LLMのモデル名
 MODEL_NAME = "gpt-4.1-mini" # 適切なモデルを選択してください
 
+@app.route('/api/generate-problem', methods=['POST'])
+def generate_problem():
+    """
+    AIが証明問題を自動生成するAPIエンドポイント。
+    """
+    try:
+        data = request.get_json() or {}
+        
+        # オプションパラメータ：難易度（easy, medium, hard）
+        difficulty = data.get("difficulty", "medium")
+        
+        # 難易度に応じたプロンプト
+        difficulty_guidance = {
+            "easy": "中学1年生レベルの簡単な証明問題",
+            "medium": "中学2-3年生レベルの標準的な証明問題",
+            "hard": "高校1年生レベルの難しい証明問題"
+        }
+        
+        guidance = difficulty_guidance.get(difficulty, difficulty_guidance["medium"])
+        
+        # プロンプトの生成
+        prompt_template = """
+あなたは中高数学の問題出題AIです。{guidance}を生成してください。
+
+以下のJSON形式で出力してください：
+{{
+  "theorem_context": "証明の分野・定理名（例：三角形の合同条件）",
+  "given": "与条件を箇条書きで（例：AB=DE, BC=EF, ∠B=∠E）",
+  "to_prove": "証明すべき結論（例：△ABC ≡ △DEF）"
+}}
+
+注意：
+- 数学的に正確な問題を生成してください
+- 与条件と結論が矛盾しないようにしてください
+- 日本語で記述してください
+"""
+        
+        prompt = prompt_template.format(guidance=guidance)
+        
+        # LLMへの問い合わせ
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "あなたは中高数学の問題出題AIです。数学的に正確な証明問題を生成し、必ず指定されたJSON形式で出力してください。"},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=512,
+            temperature=0.7  # 創意性を高めるため、温度を上げる
+        )
+        
+        # LLMの応答からJSONを抽出
+        llm_output_text = response.choices[0].message.content
+        
+        # JSON文字列をパース
+        try:
+            problem_data = json.loads(llm_output_text)
+        except json.JSONDecodeError:
+            print(f"LLM returned invalid JSON: {llm_output_text}")
+            return jsonify({"error": "LLM returned an unparsable response."}), 500
+        
+        # 必須フィールドの確認
+        required_fields = ["theorem_context", "given", "to_prove"]
+        if not all(field in problem_data for field in required_fields):
+            return jsonify({"error": "Generated problem is missing required fields"}), 500
+        
+        return jsonify(problem_data), 200
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/hint', methods=['POST'])
 def get_hint():
     """
