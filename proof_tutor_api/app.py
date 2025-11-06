@@ -1,9 +1,9 @@
 import os
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from openai import OpenAI
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 client = OpenAI() # 環境変数からAPIキーを自動で読み込みます
 
 # LLMのモデル名
@@ -98,6 +98,14 @@ def get_hint():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": str(e)}), 500
+
+@app.route('/')
+def serve_index():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
     # 開発環境での実行
